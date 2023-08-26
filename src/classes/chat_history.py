@@ -1,7 +1,5 @@
 # Import the JSON library to handle JSON files
 import json
-# Import the ChatCompletion class from the OpenAI library
-from openai import ChatCompletion
 
 
 # Define the ChatHistory class
@@ -19,7 +17,7 @@ class ChatHistory:
         # Roughly estimate the token count for a message
         return len(message.split()) + len(message)
 
-    # Add this method to the ChatHistory class
+    # Check if the token count is over the limit including the new message
     def check_token_limit(self, conversation_history):
         while self.token_count > 4096:  # GPT-3.5-turbo's maximum token limit
             removed_message = conversation_history.pop(0)

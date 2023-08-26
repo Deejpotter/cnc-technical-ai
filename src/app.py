@@ -5,7 +5,6 @@ from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 import os
 from classes.chat_history import ChatHistory
-from classes.user_input import UserInput
 from classes.bot_response import BotResponse
 from classes.api_handler import APIHandler
 
@@ -34,15 +33,17 @@ def index():
 # This route handles the user input to ask a question to the bot.
 @app.route('/ask', methods=['POST'])
 def ask():
+    # Get the user message from the request, which is entered by the user in the text input field
     user_message = request.form['user_message']
-    # Add user message to conversation history
+    # Che
+    # Add user message to conversation history, which will be used to generate the bot response
     chat_history.add_message(conversation_history, "user", user_message)
+
+    # Call check_token_limit with the conversation history to remove old messages if the token limit is exceeded by the new message
+    chat_history.check_token_limit(conversation_history)
 
     # Generate bot response
     bot_response = bot_response_instance.get_bot_response(conversation_history)
-
-    # Check if the bot response contains a token
-    chat_history.check_token_limit(conversation_history)
 
     # Add bot response to conversation history
     chat_history.add_message(conversation_history, "assistant", bot_response)

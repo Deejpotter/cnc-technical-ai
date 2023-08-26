@@ -4,7 +4,6 @@ import sys
 import json
 import openai
 from chat_history import ChatHistory
-from user_input import UserInput
 from bot_response import BotResponse
 
 
@@ -23,7 +22,6 @@ class ChatEngine:
         # Initialize classes for user input, bot response, and chat history and store them as properties of the ChatEngine object
         # That way, we can access them from other methods in the class
         self.chat_history = ChatHistory()
-        self.user_input_class = UserInput()
         self.bot_response_class = BotResponse(openai.api_key)
 
         # Load existing conversation history using the ChatHistory class
@@ -44,9 +42,19 @@ class ChatEngine:
         # Add the initial system message to the conversation history
         self.conversation_history.append(initial_system_message)
 
+    # Method to capture user input from the command line
+    def get_user_input(self):
+        # Capture user input and remove any leading/trailing whitespace
+        user_input = input("User: ").strip()
+        # Check if the input is empty and recursively ask for input until valid
+        if not user_input:
+            print("Input cannot be empty. Please try again.")
+            return self.get_user_input()
+        return user_input
+
     # Method to handle user input
     def handle_user_input(self):
-        user_message = self.user_input_class.get_user_input()
+        user_message = self.get_user_input()
         self.chat_history.check_token_limit(self.conversation_history)
         self.chat_history.add_message("user", user_message, self.conversation_history)
 
@@ -62,4 +70,3 @@ class ChatEngine:
             self.handle_user_input()
             self.generate_bot_response()
             self.chat_history.save_conversation_history(self.conversation_history)
-            self.chat_history.log_conversation(self.conversation_history)
