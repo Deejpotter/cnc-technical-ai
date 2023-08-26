@@ -146,5 +146,77 @@
   {
     "role": "assistant",
     "content": "At Maker Store, we offer a variety of spindles for CNC routing machines. The specific spindles we have may vary over time based on availability and customer demands. Here are some of the common spindles you may find at Maker Store:\n\n1. Trim Routers: These compact and versatile routers are commonly used for light to medium-duty CNC routing. They are typically compatible with 1/4\" (6.35mm) collets and can accommodate a range of router bits.\n\n2. Water-Cooled Spindles: Water-cooled spindles provide higher power and better precision compared to trim routers. They come in different sizes and typically have larger collet sizes, such as ER11 or ER20, allowing for a wider variety of cutting tools. Water-cooling systems are included to dissipate heat during operation.\n\n3. Air-Cooled Spindles: Air-cooled spindles are similar to water-cooled spindles in terms of power and precision but rely on an internal fan for cooling rather than a water system. These spindles are convenient for setups without the need for water cooling.\n\n4. High-Speed Spindles: High-speed spindles are specialized spindles capable of achieving higher RPM (rotations per minute). They are often used for fine engraving, PCB manufacturing, and other intricate tasks. These spindles may require a dedicated VFD (Variable Frequency Drive) for control.\n\nPlease note that the availability of specific spindles may vary based on stock and customer demand. It's always recommended to check our website or contact our support team directly to get the most up-to-date information on spindle options available at Maker Store. How else can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "Hi"
+  },
+  {
+    "role": "assistant",
+    "content": "I'm sorry, but I'm unable to respond at the moment. Please try again later."
+  },
+  {
+    "role": "user",
+    "content": "Hi"
+  },
+  {
+    "role": "assistant",
+    "content": "I'm sorry, but I'm unable to respond at the moment. Please try again later."
+  },
+  {
+    "role": "user",
+    "content": "Hi"
+  },
+  {
+    "role": "assistant",
+    "content": "I'm sorry, but I'm unable to respond at the moment. Please try again later."
+  },
+  {
+    "role": "user",
+    "content": "Hi"
+  },
+  {
+    "role": "assistant",
+    "content": "I'm sorry, but I'm unable to respond at the moment. Please try again later."
+  },
+  {
+    "role": "user",
+    "content": "Hi"
+  },
+  {
+    "role": "assistant",
+    "content": "I'm sorry, but I'm unable to respond at the moment. Please try again later."
+  },
+  {
+    "role": "user",
+    "content": "Hi"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! How can I assist you today?"
+  },
+  {
+    "role": "user",
+    "content": "Tell me about maker store"
+  },
+  {
+    "role": "assistant",
+    "content": "Maker Store is an online retailer that specializes in providing products and tools for makers and DIY enthusiasts. We offer a wide range of items that cater to different creative projects and technical endeavors. Some of the products you can find at Maker Store include electronic components, microcontrollers, sensors, 3D printers, robotics kits, and more.\n\nAt Maker Store, we strive to provide high-quality products and excellent customer service. We understand the needs of makers and aim to support their creative endeavors by offering reliable and cutting-edge tools. If you have any specific questions about our products, services, or need assistance with an order, feel free to ask. How can I help you further with Maker Store?"
+  },
+  {
+    "role": "user",
+    "content": "Explain how electricity works"
+  },
+  {
+    "role": "assistant",
+    "content": "Electricity is the flow of electrical charge, typically carried by negatively charged particles called electrons. Understanding how electricity works involves a few fundamental concepts:\n\n1. Atoms: All matter is made up of atoms, which consist of a positively charged nucleus (containing protons and neutrons) surrounded by negatively charged electrons.\n\n2. Electrons: Electrons are negatively charged particles that orbit the nucleus of an atom. They are the carriers of electrical charge.\n\n3. Conductors and Insulators: Materials can be classified as conductors or insulators based on their ability to allow the flow of electrons. Conductors, such as metals, have loosely bound electrons that can move easily, enabling the flow"
+  },
+  {
+    "role": "user",
+    "content": "Hi"
+  },
+  {
+    "role": "assistant",
+    "content": "I'm sorry, but I'm unable to respond at the moment. Please try again later."
   }
 ]

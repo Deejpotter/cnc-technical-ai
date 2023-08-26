@@ -1,0 +1,29 @@
+#chat-container {
+    width: 400px;
+    height: 600px;
+    margin: auto;
+    border: 1px solid #ccc;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+#chat-history {
+    height: 500px;
+    overflow-y: auto;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+}
+
+#chat-form {
+    display: flex;
+    justify-content: space-between;
+}
+
+#user-input {
+    width: 80%;
+    padding: 10px;
+}
+
+button {
+    padding: 10px 20px;
+}
