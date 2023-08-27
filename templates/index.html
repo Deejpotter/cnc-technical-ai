@@ -1,34 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Maker Store Chatbot</title>
-    <!-- Linking the CSS file -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-<!-- Main container for chat and chat history -->
-<div id="main-container">
-    <!-- Container for chat history -->
-    <div id="chat-history-container">
-        <!-- Chat history will be displayed here -->
-    </div>
-    <!-- Container for the chat interface -->
-    <div id="chat-container">
-        <!-- Where the chat messages will appear -->
-        <div id="chat-history">
-            <!-- Chat messages will be appended here -->
+{% extends "bootstrap/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4 border-right" id="chat-history-container">
+            <!-- Chat history will be displayed here -->
         </div>
-        <!-- Form for user input -->
-        <form id="chat-form">
-            <!-- Text input for user messages -->
-            <input type="text" id="user-input" placeholder="Type your message...">
-            <!-- Send button -->
-            <button type="submit">Send</button>
-        </form>
+        <div class="col-md-8" id="chat-container">
+            <div class="overflow-auto border-bottom mb-2" id="chat-history" style="height: 500px;">
+                <!-- Chat messages will be appended here -->
+            </div>
+            <form class="d-flex" id="chat-form">
+                <input type="text" class="form-control mr-2" id="user-input" placeholder="Type your message...">
+                <button type="submit" class="btn btn-primary">Send</button>
+            </form>
+        </div>
     </div>
 </div>
 <!-- Linking the JavaScript file -->
 <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
-</html>
+{% endblock %}
