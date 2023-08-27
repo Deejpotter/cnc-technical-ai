@@ -1,22 +1,45 @@
 {% extends "bootstrap/base.html" %}
 
 {% block content %}
+<!-- Main container for the entire chat interface -->
 <div class="container mt-5">
+    <!-- Button to toggle conversations on mobile -->
+    <button class="btn btn-primary d-md-none mb-3" type="button" data-toggle="collapse"
+            data-target="#conversation-list">
+        Toggle Conversations <!-- Text for the toggle button -->
+    </button>
+    <!-- Row to divide the sidebar and chat area -->
     <div class="row">
-        <div class="col-md-4 border-right" id="chat-history-container">
-            <!-- Chat history will be displayed here -->
+        <!-- Sidebar for listing conversations, now hidden by default on small screens -->
+        <div class="col-md-4 border-right p-3 collapse d-md-block" id="conversation-list">
+            <!-- Title for the conversation list -->
+            <h5 class="mb-3">Conversations</h5>
+            <!-- List of conversations -->
+            <ul class="list-group mb-4">
+                <!-- Active conversation is highlighted -->
+                <li class="list-group-item active">Conversation 1</li>
+                <!-- Other conversations -->
+                <li class="list-group-item">Conversation 2</li>
+            </ul>
         </div>
-        <div class="col-md-8" id="chat-container">
-            <div class="overflow-auto border-bottom mb-2" id="chat-history" style="height: 500px;">
-                <!-- Chat messages will be appended here -->
+        <!-- Main chat area -->
+        <div class="col-md-8 p-3">
+            <!-- Container for chat history and input form -->
+            <div class="border rounded p-3" id="chat-container">
+                <!-- Chat history will be displayed here -->
+                <div class="overflow-auto mb-3" id="chat-history" style="height: calc(100vh - 200px);">
+                </div>
+                <!-- Form for user to input messages -->
+                <form class="d-flex fixed-bottom bg-white p-2" id="chat-form">
+                    <!-- Text input for user messages -->
+                    <input type="text" class="form-control mr-2" id="user-input" placeholder="Type your message...">
+                    <!-- Send button -->
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </form>
             </div>
-            <form class="d-flex" id="chat-form">
-                <input type="text" class="form-control mr-2" id="user-input" placeholder="Type your message...">
-                <button type="submit" class="btn btn-primary">Send</button>
-            </form>
         </div>
     </div>
 </div>
-<!-- Linking the JavaScript file -->
+<!-- JavaScript for handling chat interactions -->
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 {% endblock %}

@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Create a new div element to display the user's message
         const userMessage = document.createElement("div");
+        userMessage.className = "user-message"; // Add class for styling
         userMessage.textContent = "User: " + userInput;
 
         // Append the user's message to the chat history
@@ -49,6 +50,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             // Create a new div element to display the bot's message
             const botMessage = document.createElement("div");
+            botMessage.className = "bot-message"; // Add class for styling
             botMessage.textContent = "Assistant: " + data.bot_response;
 
             // Append the bot's message to the chat history
@@ -60,3 +62,8 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+// Function to toggle the sliding menu
+function toggleMenu() {
+    const menu = document.getElementById("mobile-conversation-list");
+    menu.classList.toggle("show");
+}

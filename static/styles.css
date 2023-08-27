@@ -1,62 +1,70 @@
-/* Main container style */
-#main-container {
-    display: flex;
-    justify-content: space-between;
-}
-
-/* Style for the chat history container */
-#chat-history-container {
-    width: 30%;
-    border-right: 1px solid #ccc;
+/* Style for the active conversation */
+.list-group-item.active {
+  background-color: #007bff; /* Blue background for active item */
+  color: white; /* White text for active item */
 }
 
 /* Style for the chat container */
 #chat-container {
-    width: 70%;
-    height: 600px;
-    border: 1px solid #ccc;
-    padding: 20px;
-    background-color: #f9f9f9;
+  background-color: #f9f9f9; /* Light gray background */
 }
 
 /* Style for the chat history */
 #chat-history {
-    height: 500px;
+    height: calc(100vh - 200px); /* Adjusted height */
     overflow-y: auto;
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 10px;
 }
 
-/* Style for the chat form */
+/* Style for the fixed chat input */
 #chat-form {
-    display: flex;
-    justify-content: space-between;
+    width: 100%; /* Full width */
 }
 
-/* Style for the user input */
-#user-input {
-    width: 80%;
-    padding: 10px;
+/* Style for user messages */
+.user-message {
+  background-color: #e6f7ff; /* Light blue background */
+  padding: 10px; /* Padding around text */
+  margin: 5px; /* Margin around the message */
+  border-radius: 10px; /* Rounded corners */
 }
 
-/* Style for the button */
-button {
-    padding: 10px 20px;
+/* Style for bot messages */
+.bot-message {
+  background-color: #f1f1f1; /* Light gray background */
+  padding: 10px; /* Padding around text */
+  margin: 5px; /* Margin around the message */
+  border-radius: 10px; /* Rounded corners */
 }
 
 /* Style for the typing indicator */
 .typing-indicator {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: blue;
-    animation: typingAnimation 1.5s infinite;
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: blue;
+  animation: typingAnimation 1.5s infinite;
 }
 
 /* Keyframes for the typing animation */
 @keyframes typingAnimation {
-    0% { background-color: blue; }
-    50% { background-color: transparent; }
-    100% { background-color: blue; }
+  0% { background-color: blue; }
+  50% { background-color: transparent; }
+  100% { background-color: blue; }
+}
+
+/* Style for the sliding menu */
+.slide-menu {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    height: 100%;
+    width: 300px;
+    overflow-y: auto;
+    transition: left 0.3s ease;
+}
+
+/* Style for the sliding menu when it's visible */
+.slide-menu.show {
+    left: 0;
 }
