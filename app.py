@@ -4,8 +4,8 @@
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 import os
-from classes.chat_history import ChatHistory
-from classes.bot_response import BotResponse
+from chat_history import ChatHistory
+from bot_response import BotResponse
 
 # Initialize the Flask app
 app = Flask(__name__)
