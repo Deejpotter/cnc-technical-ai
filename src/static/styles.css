@@ -1,12 +1,25 @@
+/* Main container style */
+#main-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Style for the chat history container */
+#chat-history-container {
+    width: 30%;
+    border-right: 1px solid #ccc;
+}
+
+/* Style for the chat container */
 #chat-container {
-    width: 400px;
+    width: 70%;
     height: 600px;
-    margin: auto;
     border: 1px solid #ccc;
     padding: 20px;
     background-color: #f9f9f9;
 }
 
+/* Style for the chat history */
 #chat-history {
     height: 500px;
     overflow-y: auto;
@@ -14,16 +27,36 @@
     padding-bottom: 10px;
 }
 
+/* Style for the chat form */
 #chat-form {
     display: flex;
     justify-content: space-between;
 }
 
+/* Style for the user input */
 #user-input {
     width: 80%;
     padding: 10px;
 }
 
+/* Style for the button */
 button {
     padding: 10px 20px;
+}
+
+/* Style for the typing indicator */
+.typing-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: blue;
+    animation: typingAnimation 1.5s infinite;
+}
+
+/* Keyframes for the typing animation */
+@keyframes typingAnimation {
+    0% { background-color: blue; }
+    50% { background-color: transparent; }
+    100% { background-color: blue; }
 }

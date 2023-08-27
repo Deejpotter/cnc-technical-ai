@@ -1,8 +1,12 @@
 # Import the required modules and classes
 import os
+# Import the sys library to write to the standard output
 import sys
-import json
+# Import the time library to simulate typing delays
+import time
+# Import the OpenAI library to interact with the GPT-3 API
 import openai
+# Import the ChatHistory and BotResponse classes for handling the conversation history and bot response
 from chat_history import ChatHistory
 from bot_response import BotResponse
 
@@ -30,13 +34,12 @@ class ChatEngine:
 
         # Initial system message to set the context
         initial_system_message = {
-            "role":
-                "system",
-            "content":
-                "You are a customer service representative for Maker Store, specializing in CNC routing machines and CNC controllers. Your knowledge is limited to the specific "
-                "products and services offered by Maker Store. Always verify your information and provide accurate details. If a question pertains to a product or service not "
-                "offered by Maker Store, reply with 'I'm sorry, but I don't have information about that product. Please contact our support team for assistance.' Your tone "
-                "should be friendly and informative."
+            "role": "system",
+            "content": "You are Maker Bot, a specialized customer service representative for Maker Store. Your primary role is to assist customers with inquiries about CNC "
+                       "routing machines, CNC controllers, and other products and services exclusively offered by Maker Store. If a customer asks about a product or service, "
+                       "assume they are referring to Maker Store's catalog. Do not claim to lack information on a product unless it is explicitly not offered by Maker Store. "
+                       "Your responses should be concise, friendly, and informative. Keep your answers short and to the point, unless the customer requests more detailed "
+                       "information. Always prioritize accuracy and clarity in your responses."
         }
 
         # Add the initial system message to the conversation history
@@ -52,13 +55,13 @@ class ChatEngine:
             return self.get_user_input()
         return user_input
 
-    # Method to handle user input
+    # Call the handle_special_commands method to check if the user input is a special command.
     def handle_user_input(self):
         user_message = self.get_user_input()
         self.chat_history.check_token_limit(self.conversation_history)
         self.chat_history.add_message("user", user_message, self.conversation_history)
 
-    # Method to generate bot response
+    # Call the get_bot_response method of the BotResponse class to generate a response from the assistant.
     def generate_bot_response(self):
         bot_response = self.bot_response_class.get_bot_response(self.conversation_history)
         self.chat_history.add_message("assistant", bot_response, self.conversation_history)

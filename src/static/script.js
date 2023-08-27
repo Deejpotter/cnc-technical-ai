@@ -19,6 +19,20 @@ document.addEventListener("DOMContentLoaded", function() {
         // Append the user's message to the chat history
         chatHistory.appendChild(userMessage);
 
+        // Create a typing indicator element
+        const typingIndicator = document.createElement("div");
+        typingIndicator.className = "typing-indicator";
+
+        // Add three dots to the typing indicator
+        for (let i = 0; i < 3; i++) {
+            const dot = document.createElement("span");
+            dot.className = "typing-indicator";
+            typingIndicator.appendChild(dot);
+        }
+
+        // Append the typing indicator to the chat history
+        chatHistory.appendChild(typingIndicator);
+
         // Use the fetch API to send a POST request to the Flask app
         fetch('/ask', {
             method: 'POST',
@@ -30,9 +44,12 @@ document.addEventListener("DOMContentLoaded", function() {
         // Parse the JSON response from the Flask app
         .then(response => response.json())
         .then(data => {
+            // Remove the typing indicator
+            chatHistory.removeChild(typingIndicator);
+
             // Create a new div element to display the bot's message
             const botMessage = document.createElement("div");
-            botMessage.textContent = "Bot: " + data.bot_response;
+            botMessage.textContent = "Assistant: " + data.bot_response;
 
             // Append the bot's message to the chat history
             chatHistory.appendChild(botMessage);

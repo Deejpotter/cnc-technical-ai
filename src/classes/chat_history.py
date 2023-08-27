@@ -1,5 +1,9 @@
 # Import the JSON library to handle JSON files
 import json
+# Import the logging library to enable logging features
+import logging
+
+MAX_TOKENS = 4096
 
 
 # Define the ChatHistory class
@@ -17,12 +21,17 @@ class ChatHistory:
         # Roughly estimate the token count for a message
         return len(message.split()) + len(message)
 
-    # Check if the token count is over the limit including the new message
+    # Method to update the token count based on the entire conversation history
+    def update_token_count(self, conversation_history):
+        self.token_count = sum(self.estimate_tokens(message['content']) for message in conversation_history)
+
+    # Check if the token count is over the limit and remove messages until it's under the limit
     def check_token_limit(self, conversation_history):
-        while self.token_count > 4096:  # GPT-3.5-turbo's maximum token limit
+        self.update_token_count(conversation_history)  # Update the token count
+        while self.token_count > MAX_TOKENS:
             removed_message = conversation_history.pop(0)
             removed_tokens = self.estimate_tokens(removed_message['content'])
-            self.token_count -= removed_tokens
+            self.token_count -= removed_tokens  # Update the token count
 
     # Method to load the conversation history from a JSON file
     def load_conversation_history(self):
@@ -57,3 +66,15 @@ class ChatHistory:
         self.token_count += message_tokens  # Update the running token count
         self.check_token_limit(conversation_history)  # Check if we're over the limit
         conversation_history.append(message)
+
+    def configure_logging(self):
+        logging.basicConfig(filename='chatbot.log',
+                            level=logging.INFO,
+                            format='%(asctime)s - %(message)s')
+
+    def log_conversation(self, conversation_history):
+        log_entry = "\n".join([
+            f"{message['role']}: {message['content']}"
+            for message in conversation_history
+        ])
+        logging.info(f"Conversation:\n{log_entry}")

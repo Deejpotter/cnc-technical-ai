@@ -3,18 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <title>Maker Store Chatbot</title>
+    <!-- Linking the CSS file -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-<div id="chat-container">
-    <div id="chat-history">
-        <!-- Chat messages will be appended here -->
+<!-- Main container for chat and chat history -->
+<div id="main-container">
+    <!-- Container for chat history -->
+    <div id="chat-history-container">
+        <!-- Chat history will be displayed here -->
     </div>
-    <form id="chat-form">
-        <input type="text" id="user-input" placeholder="Type your message...">
-        <button type="submit">Send</button>
-    </form>
+    <!-- Container for the chat interface -->
+    <div id="chat-container">
+        <!-- Where the chat messages will appear -->
+        <div id="chat-history">
+            <!-- Chat messages will be appended here -->
+        </div>
+        <!-- Form for user input -->
+        <form id="chat-form">
+            <!-- Text input for user messages -->
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <!-- Send button -->
+            <button type="submit">Send</button>
+        </form>
+    </div>
 </div>
+<!-- Linking the JavaScript file -->
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 import os
 from classes.chat_history import ChatHistory
 from classes.bot_response import BotResponse
-from classes.api_handler import APIHandler
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -17,8 +16,7 @@ load_dotenv()
 # Load the conversation history
 chat_history = ChatHistory()
 
-# Initialize APIHandler and BotResponse
-api_handler = APIHandler(os.getenv("OPENAI_API_KEY"))
+# Initialize BotResponse
 bot_response_instance = BotResponse(os.getenv("OPENAI_API_KEY"))
 
 # Load existing conversation history
@@ -35,12 +33,12 @@ def index():
 def ask():
     # Get the user message from the request, which is entered by the user in the text input field
     user_message = request.form['user_message']
-    # Che
+
     # Add user message to conversation history, which will be used to generate the bot response
     chat_history.add_message(conversation_history, "user", user_message)
 
-    # Call check_token_limit with the conversation history to remove old messages if the token limit is exceeded by the new message
-    chat_history.check_token_limit(conversation_history)
+    # Update token count dynamically
+    chat_history.update_token_count(conversation_history)
 
     # Generate bot response
     bot_response = bot_response_instance.get_bot_response(conversation_history)
