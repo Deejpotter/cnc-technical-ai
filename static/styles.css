@@ -68,3 +68,32 @@
 .slide-menu.show {
     left: 0;
 }
+
+/* Style for user messages */
+.user-message {
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 15px;
+  max-width: 70%;
+  align-self: flex-end;
+}
+
+/* Style for bot messages */
+.bot-message {
+  background-color: #f1f1f1;
+  color: black;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 15px;
+  max-width: 70%;
+  align-self: flex-start;
+}
+
+/* Style for the message container */
+#message-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

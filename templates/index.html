@@ -28,6 +28,7 @@
             <div class="border rounded p-3" id="chat-container">
                 <!-- Chat history will be displayed here -->
                 <div class="overflow-auto mb-3" id="chat-history" style="height: calc(100vh - 200px);">
+                    <div id="message-container"></div>
                 </div>
                 <!-- Form for user to input messages -->
                 <form class="d-flex fixed-bottom bg-white p-2" id="chat-form">
@@ -42,4 +43,6 @@
 </div>
 <!-- JavaScript for handling chat interactions -->
 <script src="{{ url_for('static', filename='script.js') }}"></script>
+<!-- CSS for styling the chat interface -->
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 {% endblock %}

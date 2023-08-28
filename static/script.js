@@ -1,69 +1,129 @@
+// Get the message container element
+const messageContainer = document.getElementById("message-container");
+
 // Wait for the DOM to be fully loaded
 document.addEventListener("DOMContentLoaded", function() {
-    // Get the chat form and chat history elements
-    const form = document.getElementById("chat-form");
-    const chatHistory = document.getElementById("chat-history");
-
-    // Add an event listener for form submission
-    form.addEventListener("submit", function(event) {
-        // Prevent the default form submission behavior
-        event.preventDefault();
-
-        // Get the user's input from the text field
-        const userInput = document.getElementById("user-input").value;
-
-        // Create a new div element to display the user's message
-        const userMessage = document.createElement("div");
-        userMessage.className = "user-message"; // Add class for styling
-        userMessage.textContent = "User: " + userInput;
-
-        // Append the user's message to the chat history
-        chatHistory.appendChild(userMessage);
-
-        // Create a typing indicator element
-        const typingIndicator = document.createElement("div");
-        typingIndicator.className = "typing-indicator";
-
-        // Add three dots to the typing indicator
-        for (let i = 0; i < 3; i++) {
-            const dot = document.createElement("span");
-            dot.className = "typing-indicator";
-            typingIndicator.appendChild(dot);
-        }
-
-        // Append the typing indicator to the chat history
-        chatHistory.appendChild(typingIndicator);
-
-        // Use the fetch API to send a POST request to the Flask app
-        fetch('/ask', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `user_message=${userInput}`
-        })
-        // Parse the JSON response from the Flask app
-        .then(response => response.json())
-        .then(data => {
-            // Remove the typing indicator
-            chatHistory.removeChild(typingIndicator);
-
-            // Create a new div element to display the bot's message
-            const botMessage = document.createElement("div");
-            botMessage.className = "bot-message"; // Add class for styling
-            botMessage.textContent = "Assistant: " + data.bot_response;
-
-            // Append the bot's message to the chat history
-            chatHistory.appendChild(botMessage);
-        });
-
-        // Clear the text field for the next message
-        document.getElementById("user-input").value = "";
-    });
+    initializeChat();
 });
+
+// Initialize the chat application
+function initializeChat() {
+    const form = document.getElementById("chat-form");
+    form.addEventListener("submit", handleFormSubmit);
+}
+
+// Handle form submission
+function handleFormSubmit(event) {
+    event.preventDefault();
+    const userInput = getUserInput();
+    displayUserMessage(userInput);
+    displayTypingIndicator();
+    fetchBotResponse(userInput);
+}
+
+// Get user input from the text field
+function getUserInput() {
+    return document.getElementById("user-input").value;
+}
+
+// Display the user's message in the chat history
+function displayUserMessage(message) {
+    const chatHistory = document.getElementById("chat-history");
+    const userMessage = createMessageElement("user-message", "User: " + message);
+    chatHistory.appendChild(userMessage);
+}
+
+// Create a typing indicator and display it in the chat history
+function displayTypingIndicator() {
+    const chatHistory = document.getElementById("chat-history");
+    const typingIndicator = createTypingIndicator();
+    chatHistory.appendChild(typingIndicator);
+}
+
+// Fetch the bot's response from the Flask app
+function fetchBotResponse(userInput) {
+    fetch('/ask', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `user_message=${userInput}`
+    })
+    .then(response => response.json())
+    .then(data => handleBotResponse(data));
+}
+
+// Handle the bot's response
+function handleBotResponse(data) {
+    removeTypingIndicator();
+    displayBotMessage(data.bot_response);
+    clearUserInput();
+}
+
+// Remove the typing indicator from the chat history
+function removeTypingIndicator() {
+    const chatHistory = document.getElementById("chat-history");
+    const typingIndicator = document.querySelector(".typing-indicator");
+    chatHistory.removeChild(typingIndicator);
+}
+
+// Display the bot's message in the chat history
+function displayBotMessage(message) {
+    const chatHistory = document.getElementById("chat-history");
+    const botMessage = createMessageElement("bot-message", "Assistant: " + message);
+    chatHistory.appendChild(botMessage);
+}
+
+// Clear the user input field
+function clearUserInput() {
+    document.getElementById("user-input").value = "";
+}
+
+// Create a message element with a given class and text content
+function createMessageElement(className, textContent) {
+    const messageElement = document.createElement("div");
+    messageElement.className = className;
+    messageElement.textContent = textContent;
+    return messageElement;
+}
+
+// Create a typing indicator element
+function createTypingIndicator() {
+    const typingIndicator = document.createElement("div");
+    typingIndicator.className = "typing-indicator";
+    for (let i = 0; i < 3; i++) {
+        const dot = document.createElement("span");
+        dot.className = "dot";
+        typingIndicator.appendChild(dot);
+    }
+    return typingIndicator;
+}
 
 // Function to toggle the sliding menu
 function toggleMenu() {
     const menu = document.getElementById("mobile-conversation-list");
     menu.classList.toggle("show");
+}
+
+// Display the user's message in the chat history
+function displayUserMessage(userInput) {
+  const userMessage = document.createElement("div");
+  userMessage.className = "user-message";
+  userMessage.textContent = "You: " + userInput;
+  messageContainer.appendChild(userMessage);
+  scrollToBottom();
+}
+
+// Display the bot's message in the chat history
+function displayBotMessage(botResponse) {
+  const botMessage = document.createElement("div");
+  botMessage.className = "bot-message";
+  botMessage.textContent = "Assistant: " + botResponse;
+  messageContainer.appendChild(botMessage);
+  scrollToBottom();
+}
+
+// Scroll to the bottom of the chat history
+function scrollToBottom() {
+  messageContainer.scrollTop = messageContainer.scrollHeight;
 }
