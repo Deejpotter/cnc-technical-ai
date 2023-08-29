@@ -1,40 +1,32 @@
-/* Style for the active conversation */
-.list-group-item.active {
-  background-color: #007bff; /* Blue background for active item */
-  color: white; /* White text for active item */
-}
-
-/* Style for the chat container */
+/* Style for top level container */
 #chat-container {
   background-color: #f9f9f9; /* Light gray background */
+  height: calc(100vh - 100px); /* Adjusted height */
+  overflow-y: auto; /* Enables scrolling */
 }
 
-/* Style for the chat history */
-#chat-history {
-    height: calc(100vh - 200px); /* Adjusted height */
-    overflow-y: auto;
+/* Style for the message container */
+#message-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 100%;
 }
 
-/* Style for the fixed chat input */
 #chat-form {
-    width: 100%; /* Full width */
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #f1f1f1;
 }
 
-/* Style for user messages */
-.user-message {
-  background-color: #e6f7ff; /* Light blue background */
-  padding: 10px; /* Padding around text */
-  margin: 5px; /* Margin around the message */
-  border-radius: 10px; /* Rounded corners */
+#chat-form input {
+  flex-grow: 1;
+  margin-right: 10px;
 }
 
-/* Style for bot messages */
-.bot-message {
-  background-color: #f1f1f1; /* Light gray background */
-  padding: 10px; /* Padding around text */
-  margin: 5px; /* Margin around the message */
-  border-radius: 10px; /* Rounded corners */
-}
 
 /* Style for the typing indicator */
 .typing-indicator {
@@ -53,6 +45,13 @@
   100% { background-color: blue; }
 }
 
+
+/* Style for the active conversation */
+.list-group-item.active {
+  background-color: #007bff; /* Blue background for active item */
+  color: white; /* White text for active item */
+}
+
 /* Style for the sliding menu */
 .slide-menu {
     position: fixed;
@@ -68,6 +67,7 @@
 .slide-menu.show {
     left: 0;
 }
+
 
 /* Style for user messages */
 .user-message {
@@ -89,11 +89,4 @@
   border-radius: 15px;
   max-width: 70%;
   align-self: flex-start;
-}
-
-/* Style for the message container */
-#message-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }

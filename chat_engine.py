@@ -58,7 +58,7 @@ class ChatEngine:
             return self.get_user_input()
         return user_input
 
-    # Call the handle_special_commands method to check if the user input is a special command.
+    # Gets the input from the front end then checks the token limit then adds the message to the conversation history.
     def handle_user_input(self):
         user_message = self.get_user_input()
         self.chat_history.check_token_limit(self.conversation_history)

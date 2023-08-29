@@ -14,10 +14,17 @@ function initializeChat() {
 
 // Handle form submission
 function handleFormSubmit(event) {
+    // Prevent the form from submitting
     event.preventDefault();
+    // Get the user's input
     const userInput = getUserInput();
+    // Display the user's message in the chat history
     displayUserMessage(userInput);
+    // Clear the user input field
+    clearUserInput();
+    // Display a typing indicator
     displayTypingIndicator();
+    // Fetch the bot's response
     fetchBotResponse(userInput);
 }
 
@@ -26,18 +33,10 @@ function getUserInput() {
     return document.getElementById("user-input").value;
 }
 
-// Display the user's message in the chat history
-function displayUserMessage(message) {
-    const chatHistory = document.getElementById("chat-history");
-    const userMessage = createMessageElement("user-message", "User: " + message);
-    chatHistory.appendChild(userMessage);
-}
-
-// Create a typing indicator and display it in the chat history
+// Create a typing indicator and display it in the chat container
 function displayTypingIndicator() {
-    const chatHistory = document.getElementById("chat-history");
     const typingIndicator = createTypingIndicator();
-    chatHistory.appendChild(typingIndicator);
+    messageContainer.appendChild(typingIndicator);
 }
 
 // Fetch the bot's response from the Flask app
@@ -57,21 +56,18 @@ function fetchBotResponse(userInput) {
 function handleBotResponse(data) {
     removeTypingIndicator();
     displayBotMessage(data.bot_response);
-    clearUserInput();
 }
 
 // Remove the typing indicator from the chat history
 function removeTypingIndicator() {
-    const chatHistory = document.getElementById("chat-history");
     const typingIndicator = document.querySelector(".typing-indicator");
-    chatHistory.removeChild(typingIndicator);
+    messageContainer.removeChild(typingIndicator);
 }
 
 // Display the bot's message in the chat history
 function displayBotMessage(message) {
-    const chatHistory = document.getElementById("chat-history");
     const botMessage = createMessageElement("bot-message", "Assistant: " + message);
-    chatHistory.appendChild(botMessage);
+    messageContainer.appendChild(botMessage);
 }
 
 // Clear the user input field
@@ -125,5 +121,6 @@ function displayBotMessage(botResponse) {
 
 // Scroll to the bottom of the chat history
 function scrollToBottom() {
-  messageContainer.scrollTop = messageContainer.scrollHeight;
+  const chatContainer = document.getElementById("chat-container");
+  chatContainer.scrollTop = chatContainer.scrollHeight;
 }

@@ -6,7 +6,7 @@ import openai
 class BotResponse:
 
     # The __init__ method initializes the object
-    def __init__(self, api_key):
+    def __init__(self, api_key: str):
         # Store the API key passed as an argument to the object
         self.api_key = api_key
 
