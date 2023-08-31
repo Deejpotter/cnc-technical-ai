@@ -20,14 +20,13 @@ embeddings = OpenAIEmbeddings()
 db = FAISS.from_documents(documents, embeddings)
 
 
-# Function for similarity search
+# Perform a similarity search on the database to retrieve the best practices
 def retrieve_info(query):
+    # First, get the top 3 most similar documents
     similar_response = db.similarity_search(query, k=3)
-
+    # Then, get the page content from the documents so we don't get the metadata.
+    # Loop through the documents and append the page content to an array.
     page_contents_array = [doc.page_content for doc in similar_response]
-
-    # print(page_contents_array)
-
     return page_contents_array
 
 

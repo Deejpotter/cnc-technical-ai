@@ -30,12 +30,21 @@
 
 /* Style for the typing indicator */
 .typing-indicator {
-  display: inline-block;
-  width: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 5px;
+}
+
+/* Style for the dots */
+.dot {
   height: 10px;
-  border-radius: 50%;
+  width: 10px;
   background-color: blue;
-  animation: typingAnimation 1.5s infinite;
+  border-radius: 50%;
+  margin: 5px;
+  animation: typingAnimation 1s infinite;
 }
 
 /* Keyframes for the typing animation */
@@ -90,3 +99,4 @@
   max-width: 70%;
   align-self: flex-start;
 }
+
