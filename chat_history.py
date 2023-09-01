@@ -23,6 +23,7 @@ class ChatHistory:
 
     # Method to update the token count based on the entire conversation history
     def update_token_count(self, conversation_history):
+        # Check the token count of the entire conversation history by summing the token count of each message
         self.token_count = sum(self.estimate_tokens(message['content']) for message in conversation_history)
 
     # Check if the token count is over the limit and remove messages until it's under the limit
