@@ -44,6 +44,9 @@ class ChatEngine:
         You are a customer service representative and sales assistant.
         You work for a company called Maker Store. Your job is to answer customer questions about the products and services offered by Maker Store.
         If someone asks if you sell a product, you should respond as if you sell all of the products that Maker Store sells.
+        
+        Help answer this question:
+        {message}
         """
         # Create a prompt template for the system prompt
         self.system_prompt = PromptTemplate(
@@ -65,12 +68,15 @@ class ChatEngine:
 
     # Method to generate a bot response based on best practices
     def generate_best_practice(self, user_message):
-        # Search for similar responses in the database
+        # Search for similar responses in the database. The k parameter returns the top k most similar responses.
         similar_response = self.db.similarity_search(user_message, k=3)
+        # Get the page content from the documents so we don't get the metadata.
         best_practice = [doc.page_content for doc in similar_response]
         return best_practice
 
+    # Method to generate a bot response based on best practices and user message
     def generate_bot_response(self, message, best_practices):
+        # Run the chain to get the best practices then generate the bot response
         bot_response = self.chain.run(message=message, best_practice=best_practices)
         # Add the bot response to the conversation history
         self.chat_history.add_message("bot", bot_response)

@@ -12,6 +12,7 @@ class ChatHistory:
     # arguments to the object's constructor.
     def __init__(self, history_file="conversation_history.json"):
         self.history_file = history_file
+        self.current_history = self.load_conversation_history()  # Load the conversation history from the JSON file
         self.token_count = 0  # Initialize token count
         self.clear_conversation_history()  # Initialize conversation history to an empty list
 
@@ -19,8 +20,8 @@ class ChatHistory:
         message = {"role": role, "content": content}
         message_tokens = self.estimate_tokens(content)
         self.token_count += message_tokens  # Update the running token count
-        self.check_token_limit(self.load_conversation_history)  # Check if we're over the limit and remove messages if necessary
-        self.conversation_history.append(message)  # Add the message to the conversation history
+        self.check_token_limit(self.current_history)  # Check if we're over the limit and remove messages if necessary
+        self.current_history.append(message)  # Add the message to the conversation history
 
     # Method to clear the conversation history
     def clear_conversation_history(self):
