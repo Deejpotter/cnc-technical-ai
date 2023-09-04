@@ -1,58 +1,36 @@
-# This is the main file that runs the Flask app. It starts the Flask app and defines the routes for the app.
-
-# Import the Flask class from the flask package. Flask is a web framework for Python which is simple and lightweight.
+# Import necessary modules
 from flask import Flask, render_template, request, jsonify
-# Import the load_dotenv function from the dotenv package
-from dotenv import load_dotenv
-# Import the os module to access environment variables
-import os
-# Import the Bootstrap class from the flask_bootstrap package
 from flask_bootstrap import Bootstrap
-# Import the ChatHistory and BotResponse classes for handling the conversation history and bot response
-from chat_history import ChatHistory
-from bot_response import BotResponse
 
-# Initialize the Flask app
+from chat_engine import ChatEngine  # Importing the ChatEngine class
+
+# Initialize Flask app
 app = Flask(__name__)
-# Load environment variables from the .env file
-load_dotenv()
-# Initialize Bootstrap using the Flask app to use the Bootstrap CSS framework
+# Initialize Bootstrap for styling
 Bootstrap(app)
-# Load the conversation history
-chat_history = ChatHistory()
-# Initialize the BotResponse class, so we can access the methods of the class
-bot_response_instance = BotResponse(os.getenv("OPENAI_API_KEY"))
-# Load existing conversation history so the bot can continue the conversation from where it left off
-conversation_history = chat_history.load_conversation_history()
+
+# Create an instance of the ChatEngine class
+# This will run the __init__ method in the ChatEngine class
+chat_engine = ChatEngine()
 
 
-# The home route. Renders the home page which contains the chatbot.
+# Define the home route
 @app.route('/')
 def index():
+    # Render the main chat interface
     return render_template('index.html')
 
 
-# This route handles the user input to ask a question to the bot. It is called when the user clicks the "Ask" button.
+# Define the route to handle user input and bot responses
 @app.route('/ask', methods=['POST'])
 def ask():
     try:
-        # Get the user message from the request, which is entered by the user in the text input field
+        # Retrieve user message from the form
         user_message = request.form['user_message']
 
-        # Add user message to conversation history, which will be used to generate the bot response
-        chat_history.add_message(conversation_history, "user", user_message)
-
-        # Update token count dynamically
-        chat_history.update_token_count(conversation_history)
-
-        # Generate bot response
-        bot_response = bot_response_instance.get_bot_response(conversation_history)
-
-        # Add bot response to conversation history
-        chat_history.add_message(conversation_history, "assistant", bot_response)
-
-        # Save updated conversation history
-        chat_history.save_conversation_history(conversation_history)
+        # Call the process_user_input method from the chat_engine object
+        # This method will handle the user input and generate a bot response
+        bot_response = chat_engine.process_user_input(user_message)
 
         return jsonify({'bot_response': bot_response})
 
@@ -60,5 +38,6 @@ def ask():
         return jsonify({'error': str(e)})
 
 
+# Run the Flask app
 if __name__ == '__main__':
     app.run(debug=True)
