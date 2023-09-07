@@ -23,14 +23,14 @@ def index():
 
 # Define the route to handle user input and bot responses
 @app.route('/ask', methods=['POST'])
-def ask():
+def ask() -> object:
     try:
         # Retrieve user message from the form
-        user_message = request.form['user_message']
+        user_message: str = request.form['user_message']
 
         # Call the process_user_input method from the chat_engine object
         # This method will handle the user input and generate a bot response
-        bot_response = chat_engine.process_user_input(user_message)
+        bot_response: object = chat_engine.process_user_input(user_message)
 
         return jsonify({'bot_response': bot_response})
 

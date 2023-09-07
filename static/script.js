@@ -9,8 +9,17 @@ document.addEventListener("DOMContentLoaded", function() {
 // Initialize the chat application by adding an event listener to the form element.
 function initializeChat() {
     const form = document.getElementById("chat-form");
+    const userInput = document.getElementById("user-input");
     form.addEventListener("submit", handleFormSubmit);
+    userInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && event.shiftKey) {
+            event.preventDefault();
+            this.value += "\n";
+        }
+    });
+    document.getElementById("user-input").focus();
 }
+
 
 // Handle form submission
 function handleFormSubmit(event) {

@@ -47,10 +47,27 @@ class ChatEngine:
         
         Help answer this question:
         {message}
+        
+        Here is a list of best practices of how we normally respond to customer in similar scenarios:
+        {best_practice}
+        
+        If you are writing an email, format it like this:
+        "Hi Customer,
+        
+        body of email
+        
+        If you have any other questions, please let me know and I would be happy to help.
+        
+        
+        Thanks,
+        
+        Maker Bot"
+        
+        Otherwise, format your response as you would in a chat message.
         """
         # Create a prompt template for the system prompt
         self.system_prompt = PromptTemplate(
-            input_variables=["message"],
+            input_variables=["message", "best_practice"],
             template=self.system_template
         )
         self.chain = LLMChain(llm=llm, prompt=self.system_prompt)
@@ -76,7 +93,7 @@ class ChatEngine:
 
     # Method to generate a bot response based on best practices and user message
     def generate_bot_response(self, message, best_practices):
-        # Run the chain to get the best practices then generate the bot response
+        # Run the chain to get the best practices then generate the bot response. Pass in the user message and best practices as variables in the prompt.
         bot_response = self.chain.run(message=message, best_practice=best_practices)
         # Add the bot response to the conversation history
         self.chat_history.add_message("bot", bot_response)
