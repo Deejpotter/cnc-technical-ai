@@ -1,11 +1,11 @@
-# Maker Store AI
+# CNC Technical AI
 
-A chatbot which can provide detailed technical information about Maker Store products and machines.
+A chatbot which can provide detailed technical information about CNC as well as products.
 It is built using Python and Flask, and deployed on Heroku.
 
 ## Note
 
-This is a work in progress. This is for testing purposes only. It will almost certainly not work as intended and tell you incorrect information. Always double check with a Maker Store staff member.
+This is a work in progress. This is for testing purposes only. It will almost certainly not work as intended and tell you incorrect information. Always double check with a professional or suffer the consequences.
 
 ## Getting Started
 
