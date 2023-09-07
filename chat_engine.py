@@ -31,7 +31,7 @@ class ChatEngine:
         # Clear existing conversation history and start with a clean slate
         self.chat_history.save_conversation_history([])
 
-        # Load and embed the CSV data for best practices
+        # Load and embed the CSV data for best practices to create a vector store.
         loader = CSVLoader(file_path="MakerStoreTechnicalInfo.csv")
         documents = loader.load()
         embeddings = OpenAIEmbeddings()
