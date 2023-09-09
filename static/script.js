@@ -1,16 +1,25 @@
-// Get the message container element
+// Define the message container element
 const messageContainer = document.getElementById("message-container");
 
-// Wait for the DOM to be fully loaded
+// Wait for the DOM to be fully loaded then initialize the chat application
 document.addEventListener("DOMContentLoaded", function() {
     initializeChat();
 });
 
-// Initialize the chat application
+// Initialize the chat application by adding an event listener to the form element.
 function initializeChat() {
     const form = document.getElementById("chat-form");
+    const userInput = document.getElementById("user-input");
     form.addEventListener("submit", handleFormSubmit);
+    userInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && event.shiftKey) {
+            event.preventDefault();
+            this.value += "\n";
+        }
+    });
+    document.getElementById("user-input").focus();
 }
+
 
 // Handle form submission
 function handleFormSubmit(event) {
@@ -41,6 +50,8 @@ function displayTypingIndicator() {
 
 // Fetch the bot's response from the Flask app
 function fetchBotResponse(userInput) {
+    // Use the fetch API to post the user's message to the Flask app.
+    // Pass the user's message to the fetch API as a form-encoded string.
     fetch('/ask', {
         method: 'POST',
         headers: {
@@ -48,18 +59,23 @@ function fetchBotResponse(userInput) {
         },
         body: `user_message=${userInput}`
     })
+    // Then, convert the response from the Flask app to JSON
     .then(response => response.json())
+    // Then pass the response data to the handleBotResponse() function for further processing
     .then(data => handleBotResponse(data));
 }
 
 // Handle the bot's response
 function handleBotResponse(data) {
+    // Remove the typing indicator from the chat history
     removeTypingIndicator();
+    // Display the bot's message in the chat history
     displayBotMessage(data.bot_response);
 }
 
 // Remove the typing indicator from the chat history
 function removeTypingIndicator() {
+    // Get the typing indicator element from the DOM and remove it from the message container
     const typingIndicator = document.querySelector(".typing-indicator");
     messageContainer.removeChild(typingIndicator);
 }
@@ -68,6 +84,12 @@ function removeTypingIndicator() {
 function displayBotMessage(message) {
     const botMessage = createMessageElement("bot-message", "Assistant: " + message);
     messageContainer.appendChild(botMessage);
+}
+
+// Display the user's message in the chat history
+function displayUserMessage(message) {
+    const userMessage = createMessageElement("user-message", "You: " + message);
+    messageContainer.appendChild(userMessage);
 }
 
 // Clear the user input field
@@ -83,10 +105,12 @@ function createMessageElement(className, textContent) {
     return messageElement;
 }
 
-// Create a typing indicator element
+// Shows a typing indicator element using a div and three span elements
 function createTypingIndicator() {
+    // First create the div element and set the class name
     const typingIndicator = document.createElement("div");
     typingIndicator.className = "typing-indicator";
+    // Then use a loop to create three span elements and append them to the div
     for (let i = 0; i < 3; i++) {
         const dot = document.createElement("span");
         dot.className = "dot";
@@ -95,32 +119,17 @@ function createTypingIndicator() {
     return typingIndicator;
 }
 
-// Function to toggle the sliding menu
+// Toggle the conversation list menu
 function toggleMenu() {
     const menu = document.getElementById("mobile-conversation-list");
     menu.classList.toggle("show");
 }
 
-// Display the user's message in the chat history
-function displayUserMessage(userInput) {
-  const userMessage = document.createElement("div");
-  userMessage.className = "user-message";
-  userMessage.textContent = "You: " + userInput;
-  messageContainer.appendChild(userMessage);
-  scrollToBottom();
-}
-
-// Display the bot's message in the chat history
-function displayBotMessage(botResponse) {
-  const botMessage = document.createElement("div");
-  botMessage.className = "bot-message";
-  botMessage.textContent = "Assistant: " + botResponse;
-  messageContainer.appendChild(botMessage);
-  scrollToBottom();
-}
-
 // Scroll to the bottom of the chat history
 function scrollToBottom() {
+  // Get the chat container element
   const chatContainer = document.getElementById("chat-container");
+  // Then scroll to the bottom of the chat container.
+  // Use the scrollHeight property to get the height of the entire chat container.
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }

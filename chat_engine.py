@@ -1,78 +1,100 @@
-# Import the required modules and classes
 import os
-# Import the sys library to write to the standard output
 import sys
-# Import the time library to simulate typing delays
-import time
-# Import the OpenAI library to interact with the GPT-3 API
 import openai
-# Import the ChatHistory and BotResponse classes for handling the conversation history and bot response
 from chat_history import ChatHistory
-from bot_response import BotResponse
+from langchain.document_loaders.csv_loader import CSVLoader
+from langchain.vectorstores import FAISS
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.prompts import PromptTemplate
+from langchain.chat_models import ChatOpenAI
+from langchain.chains import LLMChain
+
+# Load environment variables
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
-# Define the ChatEngine class
 class ChatEngine:
-
-    # The constructor (__init__) initializes the object when it's created
+    # Initialize the ChatEngine object and its properties
     def __init__(self):
-        # Initialize the OpenAI API key
+        # Set the OpenAI API key
         try:
             openai.api_key = os.environ['OPENAI_API_KEY']
         except KeyError:
             sys.stderr.write("API key not found.")
             exit(1)
 
-        # Initialize classes for user input, bot response, and chat history and store them as properties of the ChatEngine object
-        # That way, we can access them from other methods in the class
+        # Initialize ChatHistory
         self.chat_history = ChatHistory()
-        self.bot_response_class = BotResponse(openai.api_key)
 
-        # Load existing conversation history using the ChatHistory class
-        # The load_conversation_history method returns a list of messages
-        self.conversation_history = self.chat_history.load_conversation_history()
+        # Clear existing conversation history and start with a clean slate
+        self.chat_history.save_conversation_history([])
 
-        # Initial system message to set the context
-        initial_system_message = {
-            "role":
-                "system",
-            "content":
-                "You are Maker Bot, a specialized customer service representative for a store called Maker Store. "
-                "Your primary role is to assist customers with inquiries about CNC routing machines, CNC controllers, and other products and services exclusively offered by Maker Store. "
-                "If a customer asks about a product or service, "
-                "assume they are referring to Maker Store's catalog. Do not claim to lack information on a product unless it is explicitly not offered by Maker Store. "
-                "Your responses should be concise, friendly, and informative. Keep your answers short and to the point, unless the customer requests more detailed "
-                "information. Always prioritize accuracy and clarity in your responses."
-        }
+        # Load and embed the CSV data for best practices to create a vector store.
+        loader = CSVLoader(file_path="MakerStoreTechnicalInfo.csv")
+        documents = loader.load()
+        embeddings = OpenAIEmbeddings()
+        self.db = FAISS.from_documents(documents, embeddings)
 
-        # Add the initial system message to the conversation history
-        self.conversation_history.append(initial_system_message)
+        # Initialize the ChatOpenAI class and define the system prompt template
+        llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-16k-0613")
+        self.system_template = """
+        You Are Maker Bot.
+        You are a customer service representative and sales assistant.
+        You work for a company called Maker Store. Your job is to answer customer questions about the products and services offered by Maker Store.
+        If someone asks if you sell a product, you should respond as if you sell all of the products that Maker Store sells.
+        
+        Help answer this question:
+        {message}
+        
+        Here is a list of best practices of how we normally respond to customer in similar scenarios:
+        {best_practice}
+        
+        If you are writing an email, format it like this:
+        "Hi Customer,
+        
+        body of email
+        
+        If you have any other questions, please let me know and I would be happy to help.
+        
+        
+        Thanks,
+        
+        Maker Bot"
+        
+        Otherwise, format your response as you would in a chat message.
+        """
+        # Create a prompt template for the system prompt
+        self.system_prompt = PromptTemplate(
+            input_variables=["message", "best_practice"],
+            template=self.system_template
+        )
+        self.chain = LLMChain(llm=llm, prompt=self.system_prompt)
 
-    # Method to capture user input from the command line
-    def get_user_input(self):
-        # Capture user input and remove any leading/trailing whitespace
-        user_input = input("User: ").strip()
-        # Check if the input is empty and recursively ask for input until valid
-        if not user_input:
-            print("Input cannot be empty. Please try again.")
-            return self.get_user_input()
-        return user_input
+    # Method to handle user input and generate bot response
+    def process_user_input(self, message):
+        # Add the user message to the conversation history
+        self.chat_history.add_message("user", message)
 
-    # Gets the input from the front end then checks the token limit then adds the message to the conversation history.
-    def handle_user_input(self):
-        user_message = self.get_user_input()
-        self.chat_history.check_token_limit(self.conversation_history)
-        self.chat_history.add_message("user", user_message, self.conversation_history)
+        # Search for the best practices
+        best_practices = self.generate_best_practice(message)
+        # Generate a bot response based on best practices and user message
+        bot_response = self.generate_bot_response(message, best_practices)
+        return bot_response
 
-    # Call the get_bot_response method of the BotResponse class to generate a response from the assistant.
-    def generate_bot_response(self):
-        bot_response = self.bot_response_class.get_bot_response(self.conversation_history)
-        self.chat_history.add_message("assistant", bot_response, self.conversation_history)
-        print("Assistant:", bot_response)
+    # Method to generate a bot response based on best practices
+    def generate_best_practice(self, user_message):
+        # Search for similar responses in the database. The k parameter returns the top k most similar responses.
+        similar_response = self.db.similarity_search(user_message, k=3)
+        # Get the page content from the documents so we don't get the metadata.
+        best_practice = [doc.page_content for doc in similar_response]
+        return best_practice
 
-    # Method to run the chat
-    def run_chat(self):
-        while True:
-            self.handle_user_input()
-            self.generate_bot_response()
-            self.chat_history.save_conversation_history(self.conversation_history)
+    # Method to generate a bot response based on best practices and user message
+    def generate_bot_response(self, message, best_practices):
+        # Run the chain to get the best practices then generate the bot response. Pass in the user message and best practices as variables in the prompt.
+        bot_response = self.chain.run(message=message, best_practice=best_practices)
+        # Add the bot response to the conversation history
+        self.chat_history.add_message("bot", bot_response)
+        return bot_response

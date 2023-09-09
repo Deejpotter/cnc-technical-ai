@@ -1,64 +1,111 @@
-# This is the main file that runs the Flask app. It starts the Flask app and defines the routes for the app.
-
-# Import the Flask class from the flask package. Flask is a web framework for Python which is simple and lightweight.
-from flask import Flask, render_template, request, jsonify
-# Import the load_dotenv function from the dotenv package
-from dotenv import load_dotenv
-# Import the os module to access environment variables
+# Import necessary modules
+from flask import Flask, jsonify, request, redirect  # Added redirect for URL redirection
+from flask_swagger import swagger
+from flask_swagger_ui import get_swaggerui_blueprint  # Import Swagger UI blueprint
+from flask_cors import CORS
+from flask_limiter import Limiter
+import logging
 import os
-# Import the Bootstrap class from the flask_bootstrap package
-from flask_bootstrap import Bootstrap
-# Import the ChatHistory and BotResponse classes for handling the conversation history and bot response
-from chat_history import ChatHistory
-from bot_response import BotResponse
 
-# Initialize the Flask app
+# Importing the ChatEngine class for chat logic
+from chat_engine import ChatEngine
+
+# Initialize Flask app
 app = Flask(__name__)
-# Load environment variables from the .env file
-load_dotenv()
-# Initialize Bootstrap using the Flask app to use the Bootstrap CSS framework
-Bootstrap(app)
-# Load the conversation history
-chat_history = ChatHistory()
-# Initialize the BotResponse class, so we can access the methods of the class
-bot_response_instance = BotResponse(os.getenv("OPENAI_API_KEY"))
-# Load existing conversation history so the bot can continue the conversation from where it left off
-conversation_history = chat_history.load_conversation_history()
+# Read allowed origins from environment variables
+allowed_origins = os.environ.get('ALLOWED_ORIGINS', '').split(',')
+# Enable CORS
+CORS(app, resources={r"/*": {"origins": allowed_origins}})
+# Initialize Flask-Limiter to limit the number of requests that can be made to the API
+limiter = Limiter(app)
+
+# Create an instance of the ChatEngine class for chat functionalities
+chat_engine = ChatEngine()
+
+# Configure logging to log into app.log file with debug level
+logging.basicConfig(filename='app.log', level=logging.DEBUG)
+
+# Swagger UI Configuration
+# URL for exposing Swagger UI (without trailing '/')
+SWAGGER_URL = '/swagger'
+# Our API url (can use a URL or relative path)
+API_URL = '/spec'
+
+# Call factory function to create our blueprint
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={  # Swagger UI config overrides
+        'app_name': "CNC Technical Support Chatbot API"
+    }
+)
+
+# Register blueprint at URL
+app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 
-# The home route. Renders the home page which contains the chatbot.
+# Redirect root to Swagger UI
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # Redirect to Swagger UI
+    return redirect('/swagger')
 
 
-# This route handles the user input to ask a question to the bot. It is called when the user clicks the "Ask" button.
+# Route to serve Swagger specification
+@app.route("/spec")
+def spec():
+    # Generate Swagger spec
+    swag = swagger(app)
+    # API version
+    swag['info']['version'] = "1.0"
+    # API title
+    swag['info']['title'] = "CNC Technical Support Chatbot API"
+    # Return Swagger spec as JSON
+    return jsonify(swag)
+
+
+# Route to handle user input and bot responses
 @app.route('/ask', methods=['POST'])
 def ask():
+    """
+        This endpoint is for asking questions to the chatbot.
+        ---
+        parameters:
+          - name: user_message
+            in: formData
+            type: string
+            required: true
+        responses:
+          200:
+            description: Returns the bot's response
+        """
     try:
-        # Get the user message from the request, which is entered by the user in the text input field
-        user_message = request.form['user_message']
+        # Retrieve user message from the form
+        user_message = request.json['user_message']
+        # Process user message and get bot response
+        bot_response = chat_engine.process_user_input(user_message)
+        # Return bot response with HTTP 200 OK
+        return {'bot_response': bot_response}, 200
 
-        # Add user message to conversation history, which will be used to generate the bot response
-        chat_history.add_message(conversation_history, "user", user_message)
+    except KeyError:
+        # Log KeyError
+        logging.error("KeyError occurred")
+        # Return error with HTTP 400 Bad Request
+        return {'error': 'KeyError: Missing key in request'}, 400
 
-        # Update token count dynamically
-        chat_history.update_token_count(conversation_history)
-
-        # Generate bot response
-        bot_response = bot_response_instance.get_bot_response(conversation_history)
-
-        # Add bot response to conversation history
-        chat_history.add_message(conversation_history, "assistant", bot_response)
-
-        # Save updated conversation history
-        chat_history.save_conversation_history(conversation_history)
-
-        return jsonify({'bot_response': bot_response})
+    except ValueError:
+        # Log ValueError
+        logging.error("ValueError occurred")
+        # Return error with HTTP 400 Bad Request
+        return {'error': 'ValueError: Invalid value in request'}, 400
 
     except Exception as e:
-        return jsonify({'error': str(e)})
+        # Log unexpected errors
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        # Return error with HTTP 500 Internal Server Error
+        return {'error': str(e)}, 500
 
 
+# Run the Flask app in debug mode
 if __name__ == '__main__':
     app.run(debug=True)
