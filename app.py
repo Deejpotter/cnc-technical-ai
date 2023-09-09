@@ -68,17 +68,22 @@ def spec():
 @app.route('/ask', methods=['POST'])
 def ask():
     """
-        This endpoint is for asking questions to the chatbot.
-        ---
-        parameters:
-          - name: user_message
-            in: formData
-            type: string
-            required: true
-        responses:
-          200:
-            description: Returns the bot's response
-        """
+    This endpoint is for asking questions to the chatbot.
+    ---
+    parameters:
+      - name: user_message
+        in: body
+        schema:
+          type: object
+          required:
+            - user_message
+          properties:
+            user_message:
+              type: string
+    responses:
+      200:
+        description: Returns the bot's response
+    """
     try:
         # Retrieve user message from the form
         user_message = request.json['user_message']
@@ -87,15 +92,15 @@ def ask():
         # Return bot response with HTTP 200 OK
         return {'bot_response': bot_response}, 200
 
-    except KeyError:
+    except KeyError as e:
         # Log KeyError
-        logging.error("KeyError occurred")
+        logging.error(f"KeyError occurred: {str(e)}")
         # Return error with HTTP 400 Bad Request
-        return {'error': 'KeyError: Missing key in request'}, 400
+        return {'error': 'KeyError: Invalid key in request'}, 400
 
-    except ValueError:
+    except ValueError as e:
         # Log ValueError
-        logging.error("ValueError occurred")
+        logging.error(f"ValueError occurred: {str(e)}")
         # Return error with HTTP 400 Bad Request
         return {'error': 'ValueError: Invalid value in request'}, 400
 
