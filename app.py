@@ -1,43 +1,102 @@
 # Import necessary modules
-from flask import Flask, render_template, request, jsonify
-from flask_restplus import Api, Resource
-import logging  # Import the logging module
+from flask import Flask, jsonify, request, redirect  # Added redirect for URL redirection
+from flask_swagger import swagger
+from flask_swagger_ui import get_swaggerui_blueprint  # Import Swagger UI blueprint
+import logging
 
-from chat_engine import ChatEngine  # Importing the ChatEngine class
+# Importing the ChatEngine class for chat logic
+from chat_engine import ChatEngine
 
 # Initialize Flask app
 app = Flask(__name__)
-api = Api(app, version='1.0', title='Chat API', description='A simple Chat API')
 
-# Create an instance of the ChatEngine class
+# Create an instance of the ChatEngine class for chat functionalities
 chat_engine = ChatEngine()
 
-# Configure logging
+# Configure logging to log into app.log file with debug level
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
 
+# Swagger UI Configuration
+# URL for exposing Swagger UI (without trailing '/')
+SWAGGER_URL = '/swagger'
+# Our API url (can use a URL or relative path)
+API_URL = '/spec'
 
-# Define the route to handle user input and bot responses
-@api.route('/ask')
-class Ask(Resource):
-    def post(self) -> jsonify:
-        try:
-            user_message = request.form['user_message']
-            bot_response = chat_engine.process_user_input(user_message)
-            return {'bot_response': bot_response}, 200
+# Call factory function to create our blueprint
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={  # Swagger UI config overrides
+        'app_name': "CNC Technical Support Chatbot API"
+    }
+)
 
-        except KeyError:
-            logging.error("KeyError occurred")
-            return {'error': 'KeyError: Missing key in request'}, 400
-
-        except ValueError:
-            logging.error("ValueError occurred")
-            return {'error': 'ValueError: Invalid value in request'}, 400
-
-        except Exception as e:
-            logging.error(f"An unexpected error occurred: {str(e)}")
-            return {'error': str(e)}, 500
+# Register blueprint at URL
+app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 
-# Run the Flask app
+# Redirect root to Swagger UI
+@app.route('/')
+def index():
+    # Redirect to Swagger UI
+    return redirect('/swagger')
+
+
+# Route to serve Swagger specification
+@app.route("/spec")
+def spec():
+    # Generate Swagger spec
+    swag = swagger(app)
+    # API version
+    swag['info']['version'] = "1.0"
+    # API title
+    swag['info']['title'] = "CNC Technical Support Chatbot API"
+    # Return Swagger spec as JSON
+    return jsonify(swag)
+
+
+# Route to handle user input and bot responses
+@app.route('/ask', methods=['POST'])
+def ask():
+    """
+        This endpoint is for asking questions to the chatbot.
+        ---
+        parameters:
+          - name: user_message
+            in: formData
+            type: string
+            required: true
+        responses:
+          200:
+            description: Returns the bot's response
+        """
+    try:
+        # Retrieve user message from the form
+        user_message = request.form['user_message']
+        # Process user message and get bot response
+        bot_response = chat_engine.process_user_input(user_message)
+        # Return bot response with HTTP 200 OK
+        return {'bot_response': bot_response}, 200
+
+    except KeyError:
+        # Log KeyError
+        logging.error("KeyError occurred")
+        # Return error with HTTP 400 Bad Request
+        return {'error': 'KeyError: Missing key in request'}, 400
+
+    except ValueError:
+        # Log ValueError
+        logging.error("ValueError occurred")
+        # Return error with HTTP 400 Bad Request
+        return {'error': 'ValueError: Invalid value in request'}, 400
+
+    except Exception as e:
+        # Log unexpected errors
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        # Return error with HTTP 500 Internal Server Error
+        return {'error': str(e)}, 500
+
+
+# Run the Flask app in debug mode
 if __name__ == '__main__':
     app.run(debug=True)
