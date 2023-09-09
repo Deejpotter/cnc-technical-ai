@@ -14,6 +14,7 @@ Before you begin, ensure you have met the following requirements:
 - **pip**: This is Python's package installer. It generally comes installed with Python.
 - **OpenAI API Key**: You'll need an API key from OpenAI to access their GPT-3 model. You can get one from [OpenAI's website](https://beta.openai.com/signup/).
 
+
 ## Getting Started
 
 1. **Clone the Repository**:
