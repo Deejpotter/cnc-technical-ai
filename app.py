@@ -2,13 +2,22 @@
 from flask import Flask, jsonify, request, redirect  # Added redirect for URL redirection
 from flask_swagger import swagger
 from flask_swagger_ui import get_swaggerui_blueprint  # Import Swagger UI blueprint
+from flask_cors import CORS
+from flask_limiter import Limiter
 import logging
+import os
 
 # Importing the ChatEngine class for chat logic
 from chat_engine import ChatEngine
 
 # Initialize Flask app
 app = Flask(__name__)
+# Read allowed origins from environment variables
+allowed_origins = os.environ.get('ALLOWED_ORIGINS', '').split(',')
+# Enable CORS
+CORS(app, resources={r"/*": {"origins": allowed_origins}})
+# Initialize Flask-Limiter to limit the number of requests that can be made to the API
+limiter = Limiter(app)
 
 # Create an instance of the ChatEngine class for chat functionalities
 chat_engine = ChatEngine()
@@ -72,7 +81,7 @@ def ask():
         """
     try:
         # Retrieve user message from the form
-        user_message = request.form['user_message']
+        user_message = request.json['user_message']
         # Process user message and get bot response
         bot_response = chat_engine.process_user_input(user_message)
         # Return bot response with HTTP 200 OK
