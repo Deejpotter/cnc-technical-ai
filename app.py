@@ -40,7 +40,7 @@ swaggerui_blueprint = get_swaggerui_blueprint(
     }
 )
 
-# Register blueprint at URL
+# Register the blueprint with the main Flask app, making the Swagger UI available at SWAGGER_URL
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 
