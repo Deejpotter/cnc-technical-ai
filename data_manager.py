@@ -11,7 +11,7 @@ from IDataManager import IDataManager
 
 
 class DataManager(IDataManager):
-    # Initilize the QADataManager with the MongoDB URI and get a reference to the QA collection.
+    # Initialize the QADataManager with the MongoDB URI and get a reference to the QA collection.
     def __init__(self):
         self.mongo_client = pymongo.MongoClient(os.environ["MONGO_URI"])
         self.qa_collection: Collection = self.mongo_client["cncTechnicalAi"]["qa"]
@@ -58,36 +58,21 @@ class DataManager(IDataManager):
         self.qa_collection.delete_one({"_id": id})
 
     # Method to create a vector search index in the MongoDB collection
-    def create_vector_search_index(
-        self,
-        index_name,  # The name of the index
-        vector_field_name,  # The field name of the vectors
-        num_dimensions,  # The number of dimensions of the vectors
-        similarity,  # The similarity metric to use (e.g., "cosine", "dotProduct")
-        filter_field_name=None,  # An optional field name to filter the results
-    ):
-        # Define the index
+    def create_vector_search_index(self):
         index_definition = {
-            "name": index_name,
-            "type": "vectorSearch",  # This is a vector search index
+            "name": "qa_vector_index",
+            "type": "vectorSearch",
             "fields": [
                 {
-                    "type": "vector",  # This field is a vector
-                    "path": vector_field_name,  # The field name of the vectors
-                    "numDimensions": num_dimensions,  # The number of dimensions of the vectors
-                    "similarity": similarity,  # The similarity metric to use
+                    "type": "vector",
+                    "path": "vector",
+                    "numDimensions": 768,  # Adjust based on your embeddings
+                    "similarity": "cosine"
                 }
             ],
         }
-
-        # If a filter field name is provided, add it to the index definition
-        if filter_field_name:
-            index_definition["fields"].append(
-                {"type": "filter", "path": filter_field_name}  # This field is a filter
-            )
-
-        # Create the index in the MongoDB collection
         self.qa_collection.create_index(index_definition)
+
 
     # Method to perform a vector search in the MongoDB collection
     def vector_search(self, index_name, query_vector, filter_query=None):
@@ -103,30 +88,9 @@ class DataManager(IDataManager):
 
     def create_vector_embeddings(self, text):
         # Use an ML model or API to generate embeddings
-        # Example using OpenAI's Embedding API (pseudo-code)
         response = openai.Embedding.create(
-            input=[text], model="text-embedding-model-name"
+            input=[text], model="gpt-3.5-turbo"
         )
         embeddings = response["data"][0]["embedding"]
         return embeddings
 
-    def create(self, question, answer):
-        # Generate embeddings for the question
-        embeddings = self.create_vector_embeddings(question)
-        # Store question, answer, and embeddings in MongoDB
-        self.qa_collection.insert_one(
-            {"question": question, "answer": answer, "vector": embeddings}
-        )
-
-    def vector_search(self, query_text):
-        # Generate embeddings for the query
-        query_vector = self.create_vector_embeddings(query_text)
-        # Perform vector search
-        search_query = {
-            "$vectorSearch": {
-                "index": "your_index_name",
-                "query": query_vector
-                # Additional parameters as needed
-            }
-        }
-        return self.qa_collection.aggregate([search_query])
