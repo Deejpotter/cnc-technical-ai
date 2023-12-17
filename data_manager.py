@@ -1,7 +1,6 @@
 # Pymongo helps make it easy to connect to MongoDB and perform CRUD operations.
 import os
 import pymongo
-
 # The Collection class is used to access the MongoDB collection which is like a table in a relational database.
 from pymongo.collection import Collection
 
@@ -34,12 +33,12 @@ class DataManager:
 
     # Method to create a vector search index in the MongoDB collection
     def create_vector_search_index(
-        self,
-        index_name,  # The name of the index
-        vector_field_name,  # The field name of the vectors
-        num_dimensions,  # The number of dimensions of the vectors
-        similarity,  # The similarity metric to use (e.g., "cosine", "dotProduct")
-        filter_field_name=None,  # An optional field name to filter the results
+            self,
+            index_name,  # The name of the index
+            vector_field_name,  # The field name of the vectors
+            num_dimensions,  # The number of dimensions of the vectors
+            similarity,  # The similarity metric to use (e.g., "cosine", "dotProduct")
+            filter_field_name=None,  # An optional field name to filter the results
     ):
         # Define the index
         index_definition = {

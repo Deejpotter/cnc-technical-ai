@@ -1,16 +1,15 @@
-from flask import Blueprint, Flask, jsonify, request, redirect
+from flask import Blueprint, jsonify, request
 from chat_engine import ChatEngine
 from data_manager import DataManager
-import os
 import logging
 
 bp = Blueprint("main", __name__)
 
 # The DataManager class is responsible for managing the  pairs in the database.
 # It should be initialized with the MongoDB URI then used by other classes to perform CRUD operations on the database.
-data_manager = DataManager(os.environ["MONGO_URI"])
+data_manager = DataManager()
 # Create an instance of the ChatEngine class for chat functionalities and pass the DataManager instance to it.
-chat_engine = ChatEngine(data_manager)
+chat_engine = ChatEngine()
 
 
 # Route to handle user input and bot responses
