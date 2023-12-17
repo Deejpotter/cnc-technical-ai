@@ -21,10 +21,6 @@ from data_manager import QADataManager
 # Initialize Flask app
 app = Flask(__name__)
 
-# Register chat_routes blueprint to use the chat routes
-from chat_routes import chat_routes
-app.register_blueprint(chat_routes)
-
 # Read allowed origins from environment variables
 allowed_origins = os.environ.get("ALLOWED_ORIGINS", "").split(",")
 # Enable CORS
