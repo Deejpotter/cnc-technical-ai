@@ -66,7 +66,7 @@ def add_qa():
     question = request.json.get("question", "")
     answer = request.json.get("answer", "")
     # Add the question-answer pair to the data manager
-    data_manager.add_qa_pair(question, answer)
+    data_manager.create(question, answer)
     # Return a success status
     return jsonify({"status": "success"})
 

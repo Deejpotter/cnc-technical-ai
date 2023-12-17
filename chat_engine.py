@@ -32,7 +32,7 @@ class ChatEngine:
         self.chat_history.save_conversation_history([])
 
         # Initialize the QADataManager to manage QA pairs in the database.
-        self.qa_manager = DataManager()
+        self.data_manager = DataManager()
 
         # Initialize the ChatOpenAI class and define the system prompt template
         llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
@@ -75,9 +75,9 @@ class ChatEngine:
 
     # Method to generate a bot response based on best practices
     def generate_best_practice(self, user_message):
-        # Query MongoDB for similar responses using vector search
+        # Use DataManager instance to perform vector search
         query = {"$vectorSearch": {"query": user_message, "path": "vector"}}
-        similar_responses = self.qa_collection.find(query).limit(3)
+        similar_responses = self.data_manager.vector_search(query).limit(3)
 
         best_practice = [response["answer"] for response in similar_responses]
         return best_practice
