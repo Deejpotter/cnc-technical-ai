@@ -1,13 +1,15 @@
 import os
 import sys
 import openai
-from chat_history import ChatHistory
-from langchain.document_loaders.csv_loader import CSVLoader
-from langchain.vectorstores import FAISS
-from langchain.embeddings.openai import OpenAIEmbeddings
+import pymongo
+from pymongo.collection import Collection
 from langchain.prompts import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain
+
+# My classes
+from chat_history import ChatHistory
+from data_manager import QADataManager
 
 # Load environment variables
 from dotenv import load_dotenv
@@ -20,7 +22,7 @@ class ChatEngine:
     def __init__(self):
         # Set the OpenAI API key
         try:
-            openai.api_key = os.environ['OPENAI_API_KEY']
+            openai.api_key = os.environ["OPENAI_API_KEY"]
         except KeyError:
             sys.stderr.write("API key not found.")
             exit(1)
@@ -31,16 +33,13 @@ class ChatEngine:
         # Clear existing conversation history and start with a clean slate
         self.chat_history.save_conversation_history([])
 
-        # Load and embed the CSV data for best practices to create a vector store.
-        loader = CSVLoader(file_path="MakerStoreTechnicalInfo.csv")
-        documents = loader.load()
-        embeddings = OpenAIEmbeddings()
-        self.db = FAISS.from_documents(documents, embeddings)
+        # Initialize the QADataManager to manage QA pairs in the database.
+        self.qa_manager = QADataManager()
 
         # Initialize the ChatOpenAI class and define the system prompt template
-        llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-16k-0613")
-        self.system_template = """You Are Maker Bot. You are a customer service representative and sales assistant. You work for a company called Maker Store. Your job is to 
-        answer customer questions about the products and services offered by Maker Store. If someone asks if you sell a product, you should respond as if you sell all of the 
+        llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
+        self.system_template = """You Are Maker Bot. You are an assistant to the Maker Store service representative and sales staff. You work for a company called Maker Store. 
+        Your job is to answer customer questions about the products and services offered by Maker Store. If someone asks if you sell a product, you should respond as if you sell all of the 
         products that Maker Store sells. If someone asks if you offer a service, you should respond as if you offer all of the services that Maker Store offers. If someone asks 
         if you can help them with a problem, you should respond as if you can help them with all of the problems that Maker Store can help with. IMPORTANT: If someone asks about 
         a product or service that Maker Store does not offer, you should respond telling them that Maker Store does not offer that product or service or cannot help them with 
@@ -51,16 +50,17 @@ class ChatEngine:
         Help answer this question:
         {message}
         
+        You should stick to the best practices as closely as possible. If you can't find a best practice that matches the customer's question, you should respond
+        with a response letting them know that you can't accurately answer their question.
         Here is a list of best practices of how we normally respond to customer in similar scenarios:
         {best_practice}
         
-        Please format your responses using whitespace and line breaks to make it easier for the customer to read.
+        Please format your responses using whitespace and line breaks to make it easier for the customer to read..
     
         """
         # Create a prompt template for the system prompt
         self.system_prompt = PromptTemplate(
-            input_variables=["message", "best_practice"],
-            template=self.system_template
+            input_variables=["message", "best_practice"], template=self.system_template
         )
         self.chain = LLMChain(llm=llm, prompt=self.system_prompt)
 
@@ -77,10 +77,11 @@ class ChatEngine:
 
     # Method to generate a bot response based on best practices
     def generate_best_practice(self, user_message):
-        # Search for similar responses in the database. The k parameter returns the top k most similar responses.
-        similar_response = self.db.similarity_search(user_message, k=3)
-        # Get the page content from the documents so we don't get the metadata.
-        best_practice = [doc.page_content for doc in similar_response]
+        # Query MongoDB for similar responses using vector search
+        query = {"$vectorSearch": {"query": user_message, "path": "vector"}}
+        similar_responses = self.qa_collection.find(query).limit(3)
+
+        best_practice = [response["answer"] for response in similar_responses]
         return best_practice
 
     # Method to generate a bot response based on best practices and user message
