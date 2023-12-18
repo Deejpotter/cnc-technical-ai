@@ -7,7 +7,7 @@ from langchain.chains import LLMChain
 
 # My classes
 from chat_history import ChatHistory
-from data_manager import QADataManager
+from qa_data_manager import QADataManager
 
 # Load environment variables
 from dotenv import load_dotenv

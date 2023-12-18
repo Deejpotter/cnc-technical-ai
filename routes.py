@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from chat_engine import ChatEngine
-from data_manager import QADataManager
+from qa_data_manager import QADataManager
 import logging
 
 bp = Blueprint("main", __name__)
