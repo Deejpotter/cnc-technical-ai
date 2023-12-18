@@ -7,7 +7,7 @@ from langchain.chains import LLMChain
 
 # My classes
 from chat_history import ChatHistory
-from data_manager import DataManager
+from data_manager import QADataManager
 
 # Load environment variables
 from dotenv import load_dotenv
@@ -32,7 +32,7 @@ class ChatEngine:
         self.chat_history.save_conversation_history([])
 
         # Initialize the QADataManager to manage QA pairs in the database.
-        self.data_manager = DataManager()
+        self.data_manager = QADataManager()
 
         # Initialize the ChatOpenAI class and define the system prompt template
         llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
