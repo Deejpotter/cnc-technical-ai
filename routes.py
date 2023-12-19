@@ -1,13 +1,13 @@
 from flask import Blueprint, jsonify, request
 from chat_engine import ChatEngine
-from qa_data_manager import QADataManager
+from qa_manager import QAManager
 import logging
 
 bp = Blueprint("main", __name__)
 
 # The DataManager class is responsible for managing the  pairs in the database.
 # It should be initialized with the MongoDB URI then used by other classes to perform CRUD operations on the database.
-data_manager = QADataManager()
+data_manager = QAManager()
 # Create an instance of the ChatEngine class for chat functionalities and pass the DataManager instance to it.
 chat_engine = ChatEngine()
 

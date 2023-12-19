@@ -6,7 +6,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain
 
 from chat_history import ChatHistory
-from qa_data_manager import QADataManager
+from qa_manager import QAManager
 from templates.system_prompt import system_prompt
 
 # Load environment variables
@@ -36,7 +36,7 @@ class ChatEngine:
         self.chat_history = ChatHistory()
 
         # Initialize DataManager for database interactions
-        self.data_manager = QADataManager()
+        self.data_manager = QAManager()
 
         # Initialize the ChatOpenAI class and define the system prompt template
         llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
