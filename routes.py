@@ -99,3 +99,23 @@ def delete_qa(question_id):
     data_manager.delete_qa_pair(question_id)
     # Return a success status
     return jsonify({"status": "success"})
+
+
+@bp.route("/reinitialize", methods=["POST"])
+def reinitialize_collection():
+    """
+    Endpoint to reinitialize the qa collection.
+    """
+    try:
+        data_manager.reinitialize_collection()
+        return (
+            jsonify(
+                {
+                    "status": "success",
+                    "message": "Collection reinitialized successfully.",
+                }
+            ),
+            200,
+        )
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
