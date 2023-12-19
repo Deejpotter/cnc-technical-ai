@@ -1,3 +1,4 @@
+import uuid
 import openai
 from IDataManager import IDataManager
 from mongo_data_manager import MongoDataManager
@@ -19,16 +20,20 @@ class QAManager(IDataManager):
 
     def create(self, question, answer):
         """
-        Add a QA pair to the Pinecone index with both text and vector representations.
+        Add a QA pair with both text and vector representations.
 
         Args:
             question (str): The question text.
             answer (str): The answer text.
         """
-        question_vector = self.create_vector_embeddings(question)
-        self.pinecone_data_manager.create(
-            {"id": question, "vector": question_vector, "metadata": {"answer": answer}}
-        )
+        qa_id = str(uuid.uuid4())  # Generate a unique identifier
+        embeddings = self.create_vector_embeddings(question)
+        data = {
+            "id": qa_id,
+            "vector": embeddings,
+            "metadata": {"question": question, "answer": answer},
+        }
+        self.data_manager.create(data)
 
     def get(self, question):
         """

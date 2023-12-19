@@ -79,12 +79,15 @@ class ChatEngine:
             List[str]: A list of best practices or similar responses.
         """
         try:
-            # Perform vector search in the data manager to find similar responses.
-            # The find method returns a list of dictionaries containing the best practices question-answer pairs.
-            # The question argument is used to specify the query for the vector search.
-            similar_responses = self.data_manager.find(user_message)
-            return [response["answer"] for response in similar_responses]
+            query_vector = self.data_manager.create_vector_embeddings(user_message)
+            similar_responses = self.data_manager.find(query_vector)
+
+            # Extracting answers from the query response
+            best_practices = [
+                match["metadata"]["answer"] for match in similar_responses["matches"]
+            ]
+
+            return best_practices
         except Exception as e:
-            # Log error and return an empty list if an exception occurs
             print(f"Error in generating best practices: {e}")
             return []

@@ -15,7 +15,7 @@ class PineconeDataManager(IDataManager):
         if self.index_name not in pinecone.list_indexes():
             pinecone.create_index(
                 self.index_name, dimension=768
-            )  # Assuming 768 dimensions
+            )
         self.index = pinecone.Index(self.index_name)
 
     def create(self, data: Dict[str, any]):
