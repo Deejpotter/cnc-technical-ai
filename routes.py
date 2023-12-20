@@ -1,3 +1,4 @@
+import csv
 from flask import Blueprint, jsonify, request
 from chat_engine import ChatEngine
 from qa_manager import QAManager
@@ -96,9 +97,37 @@ def update_qa(question_id):
 @bp.route("/delete_qa/<question_id>", methods=["DELETE"])
 def delete_qa(question_id):
     # Delete the question-answer pair from the data manager
-    data_manager.delete_qa_pair(question_id)
+    data_manager.delete(question_id)
     # Return a success status
     return jsonify({"status": "success"})
+
+
+@bp.route("/upload", methods=["POST"])
+def upload_file():
+    """
+    Endpoint to upload a CSV file containing question-answer pairs.
+    """
+    file = request.files["file"]  # Assuming 'file' is the key for the uploaded file
+
+    # Read the content of the file
+    file_content = file.stream.read()
+
+    # Decode the file content
+    decoded_content = file_content.decode("utf-8")
+
+    # Split the decoded content into lines
+    csv_lines = decoded_content.splitlines()
+
+    # Create a CSV reader
+    reader = csv.reader(csv_lines)
+
+    # Iterate over the CSV reader and add the question-answer pairs to the database
+    for row in reader:
+        question, answer = row
+        # Validate question and answer
+        if question and answer:
+            data_manager.create(question, answer)
+    return "File uploaded successfully", 200
 
 
 @bp.route("/reinitialize", methods=["POST"])

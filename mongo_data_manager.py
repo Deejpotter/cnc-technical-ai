@@ -1,6 +1,5 @@
 import os
 from bson import BSON
-import openai
 import pymongo
 from typing import Any, Dict, List
 from pymongo.collection import Collection

@@ -33,7 +33,7 @@ class QAManager(IDataManager):
             "vector": embeddings,
             "metadata": {"question": question, "answer": answer},
         }
-        self.data_manager.create(data)
+        self.pinecone_data_manager.create(data)
 
     def get(self, question):
         """
