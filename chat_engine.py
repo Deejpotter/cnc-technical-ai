@@ -1,13 +1,13 @@
 import os
 import sys
 import openai
-from chat_history import ChatHistory
-from langchain.document_loaders.csv_loader import CSVLoader
-from langchain.vectorstores import FAISS
-from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.prompts import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain
+
+from chat_history import ChatHistory
+from qa_manager import QAManager
+from templates.system_prompt import system_prompt
 
 # Load environment variables
 from dotenv import load_dotenv
@@ -16,77 +16,78 @@ load_dotenv()
 
 
 class ChatEngine:
-    # Initialize the ChatEngine object and its properties
+    """
+    ChatEngine class handles the core functionality of the chat system.
+    It uses OpenAI's language model for generating responses based on the input message and best practices fetched from the database.
+    """
+
     def __init__(self):
-        # Set the OpenAI API key
+        """
+        Initializes the ChatEngine with necessary components and configurations.
+        """
+        # Set OpenAI API key
         try:
-            openai.api_key = os.environ['OPENAI_API_KEY']
+            openai.api_key = os.environ["OPENAI_API_KEY"]
         except KeyError:
             sys.stderr.write("API key not found.")
-            exit(1)
+            sys.exit(1)
 
-        # Initialize ChatHistory
+        # Initialize ChatHistory for managing conversation history
         self.chat_history = ChatHistory()
 
-        # Clear existing conversation history and start with a clean slate
-        self.chat_history.save_conversation_history([])
-
-        # Load and embed the CSV data for best practices to create a vector store.
-        loader = CSVLoader(file_path="MakerStoreTechnicalInfo.csv")
-        documents = loader.load()
-        embeddings = OpenAIEmbeddings()
-        self.db = FAISS.from_documents(documents, embeddings)
+        # Initialize DataManager for database interactions
+        self.data_manager = QAManager()
 
         # Initialize the ChatOpenAI class and define the system prompt template
-        llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-16k-0613")
-        self.system_template = """You Are Maker Bot. You are a customer service representative and sales assistant. You work for a company called Maker Store. Your job is to 
-        answer customer questions about the products and services offered by Maker Store. If someone asks if you sell a product, you should respond as if you sell all of the 
-        products that Maker Store sells. If someone asks if you offer a service, you should respond as if you offer all of the services that Maker Store offers. If someone asks 
-        if you can help them with a problem, you should respond as if you can help them with all of the problems that Maker Store can help with. IMPORTANT: If someone asks about 
-        a product or service that Maker Store does not offer, you should respond telling them that Maker Store does not offer that product or service or cannot help them with 
-        that problem. We don't want to mislead customers into thinking that Maker Store offers a product or service that it does not offer or can help them with a problem that 
-        we can't help them with. If someone asks about other brands, you should tell them that we can't provide information about other brands and they should contact the 
-        original manufacturer.
-        
-        Help answer this question:
-        {message}
-        
-        Here is a list of best practices of how we normally respond to customer in similar scenarios:
-        {best_practice}
-        
-        Please format your responses using whitespace and line breaks to make it easier for the customer to read.
-    
-        """
+        llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
+
+        # Use the system_prompt template to create a PromptTemplate instance
+        self.system_template = system_prompt
+
         # Create a prompt template for the system prompt
         self.system_prompt = PromptTemplate(
-            input_variables=["message", "best_practice"],
-            template=self.system_template
+            input_variables=["message", "best_practice"], template=self.system_template
         )
         self.chain = LLMChain(llm=llm, prompt=self.system_prompt)
 
-    # Method to handle user input and generate bot response
     def process_user_input(self, message):
-        # Add the user message to the conversation history
+        """
+        Processes the user input, retrieves best practices based on the input, and generates a bot response.
+        Args:
+            message (str): The user input message.
+        Returns:
+            str: The bot's response.
+        """
+        # Add user message to conversation history
         self.chat_history.add_message("user", message)
 
-        # Search for the best practices
+        # Generate best practices based on user input
         best_practices = self.generate_best_practice(message)
-        # Generate a bot response based on best practices and user message
-        bot_response = self.generate_bot_response(message, best_practices)
-        return bot_response
 
-    # Method to generate a bot response based on best practices
-    def generate_best_practice(self, user_message):
-        # Search for similar responses in the database. The k parameter returns the top k most similar responses.
-        similar_response = self.db.similarity_search(user_message, k=3)
-        # Get the page content from the documents so we don't get the metadata.
-        best_practice = [doc.page_content for doc in similar_response]
-        return best_practice
-
-    # Method to generate a bot response based on best practices and user message
-    def generate_bot_response(self, message, best_practices):
-        # Run the chain to get the best practices then generate the bot response. Pass in the user message and best practices as variables in the prompt.
+        # Generate bot response
         bot_response = self.chain.run(message=message, best_practice=best_practices)
-        # Add the bot response to the conversation history
         self.chat_history.add_message("bot", bot_response)
+
         return bot_response
+
+    def generate_best_practice(self, user_message):
+        """
+        Generates best practices from the database based on the user message using vector search.
+        Args:
+            user_message (str): The user input message.
+        Returns:
+            List[str]: A list of best practices or similar responses.
+        """
+        try:
+            query_vector = self.data_manager.create_vector_embeddings(user_message)
+            similar_responses = self.data_manager.find(query_vector)
+
+            # Extracting answers from the query response
+            best_practices = [
+                match["metadata"]["answer"] for match in similar_responses["matches"]
+            ]
+
+            return best_practices
+        except Exception as e:
+            print(f"Error in generating best practices: {e}")
+            return []
