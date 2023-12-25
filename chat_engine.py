@@ -7,7 +7,7 @@ from langchain.chains import LLMChain
 
 from chat_history import ChatHistory
 from qa_manager import QAManager
-from templates.system_prompt import system_prompt
+from templates import system_prompt
 
 # Load environment variables
 from dotenv import load_dotenv
