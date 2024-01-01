@@ -8,6 +8,7 @@ from flask import (
 from flask_swagger import swagger
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask_cors import CORS
+from flask_socketio import SocketIO
 from flask_limiter import Limiter
 import logging
 import os
@@ -16,6 +17,9 @@ from routes import bp
 
 # Initialize Flask app
 app = Flask(__name__)
+
+# Add SocketIO support to the Flask app
+socketio = SocketIO(app)
 
 # Read allowed origins from environment variables
 allowed_origins = os.environ.get("ALLOWED_ORIGINS", "").split(",")
@@ -71,4 +75,4 @@ def spec():
 
 # Run the Flask app in debug mode
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.run(app, debug=True)  # Use socketio.run instead of app.run to enable SocketIO
