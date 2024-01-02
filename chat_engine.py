@@ -64,8 +64,13 @@ class ChatEngine:
         # Generate best practices based on user input
         best_practices = self.generate_best_practice(message)
 
-        # Generate bot response
-        bot_response = self.chain.run(message=message, best_practice=best_practices)
+        # Ensure the response strictly adheres to best practices
+        if best_practices:
+            bot_response = self.chain.run(message=message, best_practice=best_practices)
+        else:
+            # If no best practice is found, inform the user
+            bot_response = "I'm sorry, I don't have information on that topic."
+
         self.chat_history.add_message("bot", bot_response)
 
         return bot_response
