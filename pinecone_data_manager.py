@@ -1,6 +1,6 @@
 import os
 from typing import Dict
-import pinecone
+from pinecone import Pinecone, ServerlessSpec
 from IDataManager import IDataManager
 
 
@@ -11,12 +11,19 @@ class PineconeDataManager(IDataManager):
         It just handles interactions with the index and not the vector embeddings or structure of the data.
         """
         self.index_name = index_name
-        pinecone.init(api_key=os.getenv("PINECONE_API_KEY"), environment=os.getenv("PINECONE_ENVIRONMENT"))
-        if self.index_name not in pinecone.list_indexes():
-            pinecone.create_index(
-                self.index_name, dimension=768
+        self.pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+
+        if self.index_name not in self.pc.list_indexes().names():
+            self.pc.create_index(
+                name=self.index_name,
+                dimension=768,
+                metric='cosine',
+                spec=ServerlessSpec(
+                    cloud='aws',
+                    region='us-east-1'
+                )
             )
-        self.index = pinecone.Index(self.index_name)
+        self.index = self.pc.Index(self.index_name)
 
     def create(self, data: Dict[str, any]):
         """

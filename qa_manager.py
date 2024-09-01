@@ -1,5 +1,6 @@
+import os
 import uuid
-import openai
+from openai import OpenAI
 from IDataManager import IDataManager
 from mongo_data_manager import MongoDataManager
 from pinecone_data_manager import PineconeDataManager
@@ -16,16 +17,18 @@ class QAManager(IDataManager):
         """
         Initialize the DataManager with the Pinecone configuration and get a reference to the QA index.
         """
+        self.client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
         self.pinecone_data_manager = PineconeDataManager("cnctechnicalai")
 
-    def create(self, question, answer):
+    def create(self, data):
         """
         Add a QA pair with both text and vector representations.
 
         Args:
-            question (str): The question text.
-            answer (str): The answer text.
+            data (dict): A dictionary containing the question and answer text.
         """
+        (question, answer) = data["question"], data["answer"]
+
         qa_id = str(uuid.uuid4())  # Generate a unique identifier
         embeddings = self.create_vector_embeddings(question)
         data = {
@@ -87,5 +90,12 @@ class QAManager(IDataManager):
         Returns:
             list: The generated embeddings as a list of floats.
         """
-        response = openai.Embedding.create(input=text, model="text-embedding-ada-002")
-        return response["data"][0]["embedding"]
+        try:
+            response = self.client.embeddings.create(input=text, model="text-embedding-3-small")
+            # Access the embedding data through the object's attributes
+            return response.data[0].embedding
+        except Exception as e:
+            print(f"Error in creating vector embeddings: {e}")
+            return []
+
+

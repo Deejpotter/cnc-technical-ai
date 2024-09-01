@@ -1,13 +1,9 @@
 import os
 import sys
-import openai
-from langchain.prompts import PromptTemplate
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import LLMChain
-
+from openai import OpenAI
 from chat_history import ChatHistory
 from qa_manager import QAManager
-from templates.system_prompt import system_prompt
+from templates import system_prompt
 
 # Load environment variables
 from dotenv import load_dotenv
@@ -27,7 +23,7 @@ class ChatEngine:
         """
         # Set OpenAI API key
         try:
-            openai.api_key = os.environ["OPENAI_API_KEY"]
+            self.client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
         except KeyError:
             sys.stderr.write("API key not found.")
             sys.exit(1)
@@ -38,17 +34,8 @@ class ChatEngine:
         # Initialize DataManager for database interactions
         self.data_manager = QAManager()
 
-        # Initialize the ChatOpenAI class and define the system prompt template
-        llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
-
-        # Use the system_prompt template to create a PromptTemplate instance
+        # Store the system prompt template
         self.system_template = system_prompt
-
-        # Create a prompt template for the system prompt
-        self.system_prompt = PromptTemplate(
-            input_variables=["message", "best_practice"], template=self.system_template
-        )
-        self.chain = LLMChain(llm=llm, prompt=self.system_prompt)
 
     def process_user_input(self, message):
         """
@@ -64,8 +51,13 @@ class ChatEngine:
         # Generate best practices based on user input
         best_practices = self.generate_best_practice(message)
 
-        # Generate bot response
-        bot_response = self.chain.run(message=message, best_practice=best_practices)
+        # Ensure the response strictly adheres to best practices
+        if best_practices:
+            bot_response = self.generate_response(message, best_practices)
+        else:
+            # If no best practice is found, inform the user
+            bot_response = "I'm sorry, I don't have information on that topic."
+
         self.chat_history.add_message("bot", bot_response)
 
         return bot_response
@@ -79,7 +71,13 @@ class ChatEngine:
             List[str]: A list of best practices or similar responses.
         """
         try:
+            # Create vector embeddings for the user message.
             query_vector = self.data_manager.create_vector_embeddings(user_message)
+
+            # It returns a list of embeddings, so it needs to be converted to a string for the find method.
+            query_vector = " ".join(map(str, query_vector))
+
+            # Find similar responses in the database
             similar_responses = self.data_manager.find(query_vector)
 
             # Extracting answers from the query response
@@ -91,3 +89,32 @@ class ChatEngine:
         except Exception as e:
             print(f"Error in generating best practices: {e}")
             return []
+
+    def generate_response(self, message, best_practices):
+        """
+        Generates a response using the OpenAI API based on the user message and best practices.
+        Args:
+            message (str): The user input message.
+            best_practices (List[str]): A list of best practices.
+        Returns:
+            str: The generated response.
+        """
+        try:
+            # Prepare the messages for the API call
+            messages = [
+                {"role": "system", "content": self.system_template.format(best_practice="\n".join(best_practices))},
+                {"role": "user", "content": message}
+            ]
+
+            # Make the API call
+            response = self.client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=messages,
+                temperature=0
+            )
+
+            # Extract and return the generated response
+            return response.choices[0].message.content
+        except Exception as e:
+            print(f"Error in generating response: {e}")
+            return "I'm sorry, I encountered an error while processing your request."
